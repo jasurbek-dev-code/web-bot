@@ -1,18 +1,22 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
-import AppLogo from '@/components/ui/AppLogo';
-import SearchBar from './components/SearchBar';
-import ProductCard from './components/ProductCard';
-import QuickViewModal from './components/QuickViewModal';
-import CartFooterBar from './components/CartFooterBar';
-import BottomNavBar from './components/BottomNavBar';
-import SkeletonGrid from './components/SkeletonGrid';
+import React, { useState, useEffect, useMemo, Suspense } from "react";
+import AppLogo from "@/components/ui/AppLogo";
+import SearchBar from "./components/SearchBar";
+import ProductCard from "./components/ProductCard";
+import QuickViewModal from "./components/QuickViewModal";
+import CartFooterBar from "./components/CartFooterBar";
+import BottomNavBar from "./components/BottomNavBar";
+import SkeletonGrid from "./components/SkeletonGrid";
 
-import { usePaginatedData, usePagination, useCustomSearchParams } from '@/hooks';
-import { IProduct } from './interfaces';
-import { Pagination } from '@/components';
-import { useTranslation } from 'react-i18next';
+import {
+  usePaginatedData,
+  usePagination,
+  useCustomSearchParams,
+} from "@/hooks";
+import { IProduct } from "./interfaces";
+import { Pagination } from "@/components";
+import { useTranslation } from "react-i18next";
 import {
   persistOrgId,
   persistTelegramChatId,
@@ -20,9 +24,9 @@ import {
   resolveTelegramChatIdFromSources,
   resolveTelegramChatIdFromWebApp,
   sanitizeNumericId,
-} from '@/utils/security';
-import { useCart } from '@/context/CartContext';
-import ErrorModal from '@/components/ui/ErrorModal';
+} from "@/utils/security";
+import { useCart } from "@/context/CartContext";
+import ErrorModal from "@/components/ui/ErrorModal";
 
 type TelegramWebApp = {
   initDataUnsafe?: {
@@ -37,8 +41,10 @@ type TelegramWebApp = {
 };
 
 function getTelegramWebApp(): TelegramWebApp | null {
-  if (typeof window === 'undefined') return null;
-  const telegram = (window as unknown as { Telegram?: { WebApp?: TelegramWebApp } }).Telegram;
+  if (typeof window === "undefined") return null;
+  const telegram = (
+    window as unknown as { Telegram?: { WebApp?: TelegramWebApp } }
+  ).Telegram;
   return telegram?.WebApp ?? null;
 }
 
@@ -49,8 +55,8 @@ function CatalogContent() {
   const { loadSavedCart } = useCart();
 
   // 1. org_id va telegram_chat_id uchun state
-  const [orgId, setOrgId] = useState<string>('');
-  const [telegramChatId, setTelegramChatId] = useState<string>('');
+  const [orgId, setOrgId] = useState<string>("");
+  const [telegramChatId, setTelegramChatId] = useState<string>("");
   const [orgResolved, setOrgResolved] = useState(false);
 
   useEffect(() => {
@@ -62,29 +68,36 @@ function CatalogContent() {
     const resolvedOrgId = resolveOrgIdFromSources(
       startParam,
       paramsObject?.org_id,
-      paramsObject?.startapp
+      paramsObject?.startapp,
     );
 
     const chatIdFromTg = resolveTelegramChatIdFromWebApp(tg);
     const chatIdFromParams = sanitizeNumericId(paramsObject?.telegram_chat_id);
-    const resolvedChatId = resolveTelegramChatIdFromSources(chatIdFromTg, chatIdFromParams);
+    const resolvedChatId = resolveTelegramChatIdFromSources(
+      chatIdFromTg,
+      chatIdFromParams,
+    );
 
     // DEBUG: Log Telegram data
-    console.log('=== DEBUG: Telegram initDataUnsafe ===');
-    console.log('tg:', tg);
-    console.log('initDataUnsafe:', tg?.initDataUnsafe);
-    console.log('initData:', tg?.initData);
-    console.log('chatIdFromTg:', chatIdFromTg);
-    console.log('chatIdFromParams:', chatIdFromParams);
-    console.log('resolvedChatId:', resolvedChatId);
-    console.log('=======================================');
+    console.log("=== DEBUG: Telegram initDataUnsafe ===");
+    console.log("tg:", tg);
+    console.log("initDataUnsafe:", tg?.initDataUnsafe);
+    console.log("initData:", tg?.initData);
+    console.log("chatIdFromTg:", chatIdFromTg);
+    console.log("chatIdFromParams:", chatIdFromParams);
+    console.log("resolvedChatId:", resolvedChatId);
+    console.log("=======================================");
 
     tg?.ready?.();
 
     setOrgId(persistOrgId(resolvedOrgId));
     setTelegramChatId(persistTelegramChatId(resolvedChatId));
     setOrgResolved(true);
-  }, [paramsObject?.org_id, paramsObject?.startapp, paramsObject?.telegram_chat_id]);
+  }, [
+    paramsObject?.org_id,
+    paramsObject?.startapp,
+    paramsObject?.telegram_chat_id,
+  ]);
 
   const orgMissing = orgResolved && !orgId;
 
@@ -99,67 +112,86 @@ function CatalogContent() {
     };
 
     // DEBUG: Log query params
-    console.log('=== DEBUG: queryParams ===');
-    console.log('org_id:', orgId);
-    console.log('telegram_chat_id:', telegramChatId);
-    console.log('params:', params);
-    console.log('==========================');
+    console.log("=== DEBUG: queryParams ===");
+    console.log("org_id:", orgId);
+    console.log("telegram_chat_id:", telegramChatId);
+    console.log("params:", params);
+    console.log("==========================");
 
     return params;
   }, [orgId, telegramChatId, page, pageSize, paramsObject]);
 
   // API so'rovi
   const { data: products = [], isFetching } = usePaginatedData<IProduct[]>(
-    'bot/catalog',
+    "bot/catalog",
     queryParams,
-    Boolean(orgId)
+    Boolean(orgId),
   );
 
-  const [search, setSearch] = useState('');
-  const [quickViewProduct, setQuickViewProduct] = useState<IProduct | null>(null);
+  const [search, setSearch] = useState("");
+  const [quickViewProduct, setQuickViewProduct] = useState<IProduct | null>(
+    null,
+  );
 
-  const filteredProducts = useMemo(() => {
-    if (!search.trim()) return products;
-    const query = search.toLowerCase();
-    return products.filter(
-      (product) =>
-        product.name.toLowerCase().includes(query) ||
-        product.description?.toLowerCase().includes(query)
-    );
-  }, [search, products]);
+  // const filteredProducts = useMemo(() => {
+  //   if (!search.trim()) return products;
+  //   const query = search.toLowerCase();
+  //   return products.filter(
+  //     (product) =>
+  //       product.name.toLowerCase().includes(query) ||
+  //       product.description?.toLowerCase().includes(query),
+  //   );
+  // }, [search, products]);
+  const filteredProducts = [
+    {
+      id: 1176,
+      name: "Механическое уплотнение (фибросальник) 108*30",
+      measure: "nb",
+      images: [
+        "https://kamtar.uz/media/1/unknown/92cf2c2f-6a06-4053-9de4-e2829b5e91718151108691946847282.jpg",
+      ],
+      stock_quantity: "20.0000",
+      price: "13434.00",
+    },
+  ];
 
   return (
     <div
       className="min-h-screen"
       style={{
-        background: 'linear-gradient(160deg, #0A0F1E 0%, #0D1428 50%, #080D1A 100%)',
+        background:
+          "linear-gradient(160deg, #0A0F1E 0%, #0D1428 50%, #080D1A 100%)",
       }}
     >
-      <ErrorModal
+      {/* <ErrorModal
         open={orgMissing}
         title="Xatolik"
         messages={["Do'kon aniqlashda xatolik (org_id topilmadi)."]}
         onAction={() => window.location.reload()}
-      />
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      /> */}
+      <div
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+      >
         <div
           className="absolute -top-32 -right-32 w-80 h-80 rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)',
+            background:
+              "radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%)",
           }}
         />
       </div>
 
       <header
         className="sticky top-0 z-30 glass"
-        style={{ borderBottom: '1px solid rgba(0,212,255,0.12)' }}
+        style={{ borderBottom: "1px solid rgba(0,212,255,0.12)" }}
       >
         <div className="max-w-lg mx-auto px-4 pt-4 pb-3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <AppLogo size={28} />
               <span className="font-bold text-2xl tracking-tight text-[#F0F4FF]">
-                {t('Kamtar')}
+                {t("Kamtar")}
               </span>
             </div>
           </div>
@@ -173,7 +205,9 @@ function CatalogContent() {
         ) : (
           <>
             {filteredProducts.length === 0 ? (
-              <div className="text-center py-20 text-gray-400">{t('No products found')}</div>
+              <div className="text-center py-20 text-gray-400">
+                {t("No products found")}
+              </div>
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-3">
@@ -199,14 +233,21 @@ function CatalogContent() {
 
       <CartFooterBar />
       <BottomNavBar />
-      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
+      <QuickViewModal
+        product={quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 }
 
 export default function CatalogPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-white text-center">Yuklanmoqda...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-10 text-white text-center">Yuklanmoqda...</div>
+      }
+    >
       <CatalogContent />
     </Suspense>
   );

@@ -32,7 +32,6 @@
   "Edit Cart": "Саватни таҳрирлаш",
   "Delivery Details": "Етказиб бериш тафсилотлари",
   "Proceed to Checkout": "Кассага давом этиш",
-  "nb": "дона",
   "Full Name": "Тўлиқ исм",
   "Phone Number": "Телефон рақами",
   "Delivery Address": "Етказиб бериш манзили",
@@ -55,5 +54,14 @@
   "You have no orders yet.": "Сизда ҳали буюртмалар йўқ",
   "Kamtar — Fast In-Telegram Shopping": "Камтар — Телеграмда тезкор харидлар",
   "Browse products, add to cart, and checkout instantly inside Telegram. Fast, simple shopping in Uzbek Som for Uzbekistan.": "Телеграмда маҳсулотларни кўриб чиқинг, саватга қўшинг ва дарҳол буюртма беринг. Ўзбекистон учун ўзбек сўмида тез ва осон харид қилинг.",
-  "Browse Catalog": "Каталогни кўриб чиқиш"
+  "Browse catalog": "Каталогни кўриб чиқиш",
+  "nb": "дона",
+  "kg": "килограмм",
+  "g": "грамм",
+  "mg": "миллиграмм",
+  "m": "метр",
+  "m2": "квадрат метр",
+  "l": "литр",
+  "pi": "дона",
+  "pkg": "қадоқ"
 }

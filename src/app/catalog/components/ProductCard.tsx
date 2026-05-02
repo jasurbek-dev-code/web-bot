@@ -1,11 +1,13 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import AppImage from '@/components/ui/AppImage';
-import Icon from '@/components/ui/AppIcon';
-import { useCart } from '@/context/CartContext';
-import { formatUZS } from '@/utils/currency';
-import { IProduct } from '../interfaces';
+import React, { useState } from "react";
+import AppImage from "@/components/ui/AppImage";
+import Icon from "@/components/ui/AppIcon";
+import { useCart } from "@/context/CartContext";
+import { formatUZS } from "@/utils/currency";
+import { IProduct } from "../interfaces";
+import { measurment_options } from "@/constants/mesurements";
+import { useTranslation } from "react-i18next";
 
 interface ProductCardProps {
   product: IProduct;
@@ -13,10 +15,14 @@ interface ProductCardProps {
   animationIndex: number;
 }
 
-export default function ProductCard({ product, onQuickView, animationIndex }: ProductCardProps) {
+export default function ProductCard({
+  product,
+  onQuickView,
+  animationIndex,
+}: ProductCardProps) {
   const { addToCart, items, updateQuantity } = useCart();
   const [tapped, setTapped] = useState(false);
-
+  const { t } = useTranslation();
   // Savatchada ushbu mahsulot borligini tekshirish
   const cartItem = items.find((i) => i.product.id === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -48,8 +54,8 @@ export default function ProductCard({ product, onQuickView, animationIndex }: Pr
       className="product-grid-item glass-card rounded-2xl overflow-hidden cursor-pointer opacity-0 animate-fade-in-up"
       style={{
         animationDelay: `${animationIndex * 60}ms`,
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        background: "rgba(255, 255, 255, 0.03)",
+        border: "1px solid rgba(255, 255, 255, 0.08)",
       }}
       onClick={() => onQuickView(product)}
       role="button"
@@ -57,7 +63,7 @@ export default function ProductCard({ product, onQuickView, animationIndex }: Pr
       {/* Product Image */}
       <div className="relative w-full aspect-square overflow-hidden">
         <AppImage
-          src={product.images[0] || '/placeholder.png'}
+          src={product.images[0] || "/placeholder.png"}
           alt={product.name}
           fill
           className="object-cover"
@@ -69,7 +75,9 @@ export default function ProductCard({ product, onQuickView, animationIndex }: Pr
         <h3 className="font-semibold text-white text-sm leading-tight mb-2 line-clamp-2 h-10">
           {product.name}
         </h3>
-
+        <span className="text-[#7c7d7d] font-bold text-[13px]">
+          {`${product.measure === "nb" ? Number(product.stock_quantity).toFixed(0) : product.stock_quantity} ${t(measurment_options.find((m) => product.measure === m.value)?.value)}`}
+        </span>
         <div className="flex items-center justify-between gap-2">
           <span className="text-[#00D4FF] font-bold text-[13px]">
             {formatUZS(Number(product.price))}
@@ -86,7 +94,7 @@ export default function ProductCard({ product, onQuickView, animationIndex }: Pr
                 onClick={handleDecrease}
               >
                 <Icon
-                  name={quantity === 1 ? 'TrashIcon' : 'MinusIcon'}
+                  name={quantity === 1 ? "TrashIcon" : "MinusIcon"}
                   size={14}
                   className="text-white/70"
                 />
@@ -106,7 +114,7 @@ export default function ProductCard({ product, onQuickView, animationIndex }: Pr
           ) : (
             <button
               className={`w-8 h-8 flex items-center justify-center rounded-xl bg-[#00D4FF] shadow-[0_0_15px_rgba(0,212,255,0.3)] transition-all ${
-                tapped ? 'scale-90' : 'scale-100'
+                tapped ? "scale-90" : "scale-100"
               }`}
               onClick={handleInitialAdd}
             >
